@@ -1,6 +1,6 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
-const util =require('util')
+const util = require('util')
 
 //connection to MySQL Database
 const connection = mysql.createConnection({
@@ -14,11 +14,11 @@ const connection = mysql.createConnection({
     database: 'employee_trackerDB',
 });
 
-connection.connect(err=>{
+connection.connect(err => {
     if (err) throw err
 })
 
-connection.query=util.promisify(connection.query)
+connection.query = util.promisify(connection.query)
 
 
 // Initialize the application
@@ -119,47 +119,36 @@ const addEmployee = () => {
             type: "input",
             message: "What is the employee's last name?",
             name: "lastName",
-        },{
+        }, {
             type: "number",
             message: "What is the employee's role id?",
             name: "roleId",
-        },{
+        }, {
             type: "number",
             message: "What is the employee's manager id?",
             name: "managerId",
         },
     ])
-    .then ((response) => {
-        connection.query(`INSERT INTO employee SET ?`,
-        {
-            first_name: response.firstName,
-            last_name: response.lastName,
-            role_id: response.roleId,
-            manager_id: response.managerId,
-        },
+        .then((response) => {
+            connection.query(`INSERT INTO employee SET ?`,
+                {
+                    first_name: response.firstName,
+                    last_name: response.lastName,
+                    role_id: response.roleId,
+                    manager_id: response.managerId,
+                },
 
-        (err, res) => {
-            if (err) throw err;
-            console.log("The employee has been added.");
-            init();
+                (err, res) => {
+                    if (err) throw err;
+                    console.log("The employee has been added.");
+                    init();
+                })
         })
-    })
 };
 
 // Bonus Remove Employee
 
 
-const getEmployee=()=>{
-    connection.query('SELECT * FROM employee').then(res=>{
-        console.log(res)
-        return res
-    })
-}
-
-const getRoles= ()=>{
-    connection.query('SELECT * FROM role').then(res=>res)
-        
-}
 
 
 // Update Employee Role
@@ -167,34 +156,29 @@ const updateEmployeeRole = () => {
     //make the query to get all employees
     let employees;
     let roles;
-   
+
     connection.query('SELECT * FROM employee').then(result => {
 
         employees = result;
 
         connection.query('SELECT * FROM role').then(result => {
 
-        roles = result
-        console.log(employees)
-        console.log(roles)
+            roles = result
 
-        const employeeChoices = employees.map(({first_name, last_name, id}) => {
-            return ({
-                name: `${first_name} ${last_name}`,
-                value: id,
+            const employeeChoices = employees.map(({ first_name, last_name, id }) => {
+                return ({
+                    name: `${first_name} ${last_name}`,
+                    value: id,
+                })
             })
-        })
 
-        const rolesChoices = roles.map(({title, id}) => {
-           return ({
-                name: title,
-                value: id,
+            const rolesChoices = roles.map(({ title, id }) => {
+                return ({
+                    name: title,
+                    value: id,
+                })
             })
-        })
-        console.log(employeeChoices, rolesChoices)
-        
-        //choices:['Manager','President','Sales']
-            // //choices:[{name:'Manager',value:'1'},etc]
+
             inquirer.prompt([
                 {
                     type: "list",
@@ -202,28 +186,38 @@ const updateEmployeeRole = () => {
                     choices: employeeChoices,
                     name: "employeeId",
                 }
-                ,{
+                , {
                     type: "list",
                     message: "What is the employee's role id?",
-                    choices:rolesChoices,
+                    choices: rolesChoices,
                     name: "roleId",
                 },
-            ]).then (response => {
-                console.log(response)
+            ]).then((response) => {
+                //console.log(response)
+                connection.query(`UPDATE employee SET role_id = ? WHERE id = ?;`,
+                    [
+                        response.roleId,
+                        response.employeeId,
+                    ],
+
+                    (err, res) => {
+                        if (err) throw err;
+                        console.log("The employee's role has been updated.");
+                        init();
+                    })
             })
 
-            
         })
     })
-    
-
-   
-
-    //map the results into an array of objects to pass to he inquirer
+};
 
 
 
-   
+//map the results into an array of objects to pass to he inquirer
+
+
+
+
 //     .then ((response) => {
 //         connection.query(`INSERT INTO employee SET ?`,
 //         {
@@ -239,7 +233,7 @@ const updateEmployeeRole = () => {
 //             init();
 //         })
 //     })
-};
+
 
 // Add Department
 const addDepartment = () => {
@@ -250,18 +244,18 @@ const addDepartment = () => {
             name: "department",
         }
     ])
-    .then ((response) => {
-        connection.query(`INSERT INTO department SET ?`,
-        {
-            name: response.department,
-        },
+        .then((response) => {
+            connection.query(`INSERT INTO department SET ?`,
+                {
+                    name: response.department,
+                },
 
-        (err, res) => {
-            if (err) throw err;
-            console.log("The department has been added.");
-            init();
+                (err, res) => {
+                    if (err) throw err;
+                    console.log("The department has been added.");
+                    init();
+                })
         })
-    })
 };
 
 //View
@@ -272,4 +266,28 @@ const addDepartment = () => {
 
 //Delete (if time)
 //Department, role, or employee
+
+// Funtion to intitalize the application
 init();
+
+/*
+
+NOTES:
+
+
+TEST FUNCTIONS:
+    -To call all employees to map over them
+    const getEmployee=()=>{
+        connection.query('SELECT * FROM employee').then(res=>{
+            console.log(res)
+            return res
+        })
+    }
+
+    -To call all roles to map over them
+    const getRoles= ()=>{
+        connection.query('SELECT * FROM role').then(res=>res)
+
+    }
+
+*/
