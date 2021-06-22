@@ -20,26 +20,105 @@ const init = () => {
         {
             type: "list",
             message: "What would you like to do?",
-            choices: ["Add (Departments, Roles, and Employees)", "View (Departments, Roles, Employees)", "Update (Employee Roles)", "Exit"],
+            choices: [
+                "View All Employees",
+                "View All Employees by Manager", // Bonus
+                "Add Employee",
+                "Remove Employee", // Bonus
+                "Update Employee Role",
+                "Update Employee Manager", // Bonus
+                "View All Roles",
+                "Add Role",
+                "Remove Role", // Bonus
+                "View All Departments",
+                "Add Department",
+                "Remove Department", // Bonus
+                "Exit"
+            ],
             name: "init",
         }
     ])
         .then((response) => {
 
-            if (response.init == "Add (Departments, Roles, and Employees)") {
-                // Add function
-            } else if (response.init == "View (Departments, Roles, Employees)") {
-                // View function
-            } else if (response.init == "Update (Employee Roles)") {
-                // Update function
-            }  else if (response.init == "Exit") {
-                connection.end();
+            switch (response.init) {
+                case "View All Employees":
+                    viewAllEmployees();
+                    break;
+                case "View All Employees by Manager": //Bonus
+                    //function
+                    break;
+                case "Add Employee":
+                    //function
+                    break;
+                case "Remove Employee": // Bonus
+                    //function
+                    break;
+                case "Update Employee Role":
+                    //function
+                    break;
+                case "Update Employee Manager": //Bonus
+                    //function
+                    break;
+                case "View All Roles":
+                    //function
+                    break;
+                case "Add Role":
+                    //function
+                    break;
+                case "Remove Role": //Bonus
+                    //function
+                    break;
+                case "View All Departments":
+                    //function
+                    break;
+                case "Add Department":
+                    addDepartment();
+                    break;
+                case "Remove Department":
+                    //function
+                    break;
+                case "Exit":
+                    connection.end();
+                    break;
+                default:
+                    connection.end();
             }
+
         })
 }
 
-//Add
-//Department, role, or employee
+
+// View All Employees
+const viewAllEmployees = () => {
+    connection.query(`SELECT employeeRole.id, employeeRole.first_name, employeeRole.last_name, employeeRole.title AS "role_title", concat(manager.first_name, " ", manager.last_name) AS "manager_name"  FROM (SELECT employee.id, employee.first_name, employee.last_name, role.title, employee.manager_id FROM employee INNER JOIN role ON employee.role_id=role.id) AS employeeRole  LEFT JOIN employee AS manager ON employeeRole.manager_id=manager.id` , (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        init();
+    })
+};
+
+// Add Department
+const addDepartment = () => {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What department would you like to add?",
+            name: "department",
+        }
+    ])
+    .then ((response) => {
+        connection.query(`INSERT INTO department SET ?`,
+        {
+            name: response.department,
+        },
+
+        (err, res) => {
+            if (err) throw err;
+            console.log("The department has been added.");
+            init();
+        })
+    })
+};
 
 //View
 //Department, role, or employee (if time view employees by manager and department by combined salary)
