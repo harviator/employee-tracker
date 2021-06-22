@@ -48,7 +48,7 @@ const init = () => {
                     //function
                     break;
                 case "Add Employee":
-                    //function
+                    addEmployee();
                     break;
                 case "Remove Employee": // Bonus
                     //function
@@ -90,10 +90,49 @@ const init = () => {
 
 // View All Employees
 const viewAllEmployees = () => {
-    connection.query(`SELECT employeeRole.id, employeeRole.first_name, employeeRole.last_name, employeeRole.title AS "role_title", concat(manager.first_name, " ", manager.last_name) AS "manager_name"  FROM (SELECT employee.id, employee.first_name, employee.last_name, role.title, employee.manager_id FROM employee INNER JOIN role ON employee.role_id=role.id) AS employeeRole  LEFT JOIN employee AS manager ON employeeRole.manager_id=manager.id` , (err, res) => {
+    connection.query(`SELECT employeeRole.id, employeeRole.first_name, employeeRole.last_name, employeeRole.title AS "role_title", concat(manager.first_name, " ", manager.last_name) AS "manager_name"  FROM (SELECT employee.id, employee.first_name, employee.last_name, role.title, employee.manager_id FROM employee INNER JOIN role ON employee.role_id=role.id) AS employeeRole  LEFT JOIN employee AS manager ON employeeRole.manager_id=manager.id`, (err, res) => {
         if (err) throw err;
         console.table(res);
         init();
+    })
+};
+
+// Add Employee
+const addEmployee = () => {
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What is the employee's first name?",
+            name: "firstName",
+        },
+        {
+            type: "input",
+            message: "What is the employee's last name?",
+            name: "lastName",
+        },{
+            type: "number",
+            message: "What is the employee's role id?",
+            name: "roleId",
+        },{
+            type: "number",
+            message: "What is the employee's manager id?",
+            name: "managerId",
+        },
+    ])
+    .then ((response) => {
+        connection.query(`INSERT INTO employee SET ?`,
+        {
+            first_name: response.firstName,
+            last_name: response.lastName,
+            role_id: response.roleId,
+            manager_id: response.managerId,
+        },
+
+        (err, res) => {
+            if (err) throw err;
+            console.log("The employee has been added.");
+            init();
+        })
     })
 };
 
