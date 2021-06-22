@@ -1,5 +1,6 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
+const util =require('util')
 
 //connection to MySQL Database
 const connection = mysql.createConnection({
@@ -12,6 +13,13 @@ const connection = mysql.createConnection({
     password: '',
     database: 'employee_trackerDB',
 });
+
+connection.connect(err=>{
+    if (err) throw err
+})
+
+connection.query=util.promisify(connection.query)
+
 
 // Initialize the application
 //Options for add, view, update, and delete
@@ -54,7 +62,7 @@ const init = () => {
                     //function
                     break;
                 case "Update Employee Role":
-                    //function
+                    updateEmployeeRole()
                     break;
                 case "Update Employee Manager": //Bonus
                     //function
@@ -97,6 +105,8 @@ const viewAllEmployees = () => {
     })
 };
 
+//Bonus View All Employees by Manager
+
 // Add Employee
 const addEmployee = () => {
     inquirer.prompt([
@@ -136,6 +146,101 @@ const addEmployee = () => {
     })
 };
 
+// Bonus Remove Employee
+
+
+const getEmployee=()=>{
+    connection.query('SELECT * FROM employee').then(res=>{
+        console.log(res)
+        return res
+    })
+}
+
+const getRoles= ()=>{
+    connection.query('SELECT * FROM role').then(res=>res)
+        
+}
+
+
+// Update Employee Role
+const updateEmployeeRole = () => {
+    //make the query to get all employees
+    let employees;
+    let roles;
+   
+    connection.query('SELECT * FROM employee').then(result => {
+
+        employees = result;
+
+        connection.query('SELECT * FROM role').then(result => {
+
+        roles = result
+        console.log(employees)
+        console.log(roles)
+
+        const employeeChoices = employees.map(({first_name, last_name, id}) => {
+            return ({
+                name: `${first_name} ${last_name}`,
+                value: id,
+            })
+        })
+
+        const rolesChoices = roles.map(({title, id}) => {
+           return ({
+                name: title,
+                value: id,
+            })
+        })
+        console.log(employeeChoices, rolesChoices)
+        
+        //choices:['Manager','President','Sales']
+            // //choices:[{name:'Manager',value:'1'},etc]
+            inquirer.prompt([
+                {
+                    type: "list",
+                    message: "Please select an employee?",
+                    choices: employeeChoices,
+                    name: "employeeId",
+                }
+                ,{
+                    type: "list",
+                    message: "What is the employee's role id?",
+                    choices:rolesChoices,
+                    name: "roleId",
+                },
+            ]).then (response => {
+                console.log(response)
+            })
+
+            
+        })
+    })
+    
+
+   
+
+    //map the results into an array of objects to pass to he inquirer
+
+
+
+   
+//     .then ((response) => {
+//         connection.query(`INSERT INTO employee SET ?`,
+//         {
+//             first_name: response.firstName,
+//             last_name: response.lastName,
+//             role_id: response.roleId,
+//             manager_id: response.managerId,
+//         },
+
+//         (err, res) => {
+//             if (err) throw err;
+//             console.log("The employee has been added.");
+//             init();
+//         })
+//     })
+};
+
 // Add Department
 const addDepartment = () => {
     inquirer.prompt([
@@ -167,10 +272,4 @@ const addDepartment = () => {
 
 //Delete (if time)
 //Department, role, or employee
-
-
-// Conntect to MySQL server and database
-connection.connect((err) => {
-    if (err) throw err;
-    init();
-})
+init();
