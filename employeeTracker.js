@@ -29,11 +29,11 @@ const init = () => {
             type: "list",
             message: "What would you like to do?",
             choices: [
-                "View All Employees",
+                "View All Employees", // Done
                 "View All Employees by Manager", // Bonus
-                "Add Employee",
+                "Add Employee", // Done
                 "Remove Employee", // Bonus
-                "Update Employee Role",
+                "Update Employee Role", // Done
                 "Update Employee Manager", // Bonus
                 "View All Roles",
                 "Add Role",
@@ -98,7 +98,7 @@ const init = () => {
 
 // View All Employees
 const viewAllEmployees = () => {
-    connection.query(`SELECT employeeRole.id, employeeRole.first_name, employeeRole.last_name, employeeRole.title AS "role_title", concat(manager.first_name, " ", manager.last_name) AS "manager_name"  FROM (SELECT employee.id, employee.first_name, employee.last_name, role.title, employee.manager_id FROM employee INNER JOIN role ON employee.role_id=role.id) AS employeeRole  LEFT JOIN employee AS manager ON employeeRole.manager_id=manager.id`, (err, res) => {
+    connection.query(`SELECT employeeRole.id, employeeRole.first_name AS "First Name", employeeRole.last_name AS "Last Name", employeeRole.title AS "Title", concat(manager.first_name, " ", manager.last_name) AS "Manager"  FROM (SELECT employee.id, employee.first_name, employee.last_name, role.title, employee.manager_id FROM employee INNER JOIN role ON employee.role_id=role.id) AS employeeRole  LEFT JOIN employee AS manager ON employeeRole.manager_id=manager.id`, (err, res) => {
         if (err) throw err;
         console.table(res);
         init();
@@ -178,9 +178,6 @@ const addEmployee = () => {
 
 // Bonus Remove Employee
 
-
-
-
 // Update Employee Role
 const updateEmployeeRole = () => {
     let employees;
@@ -239,7 +236,12 @@ const updateEmployeeRole = () => {
     })
 };
 
+// Update Employee Manager
 
+// View All Roles
+const viewAllRoles = () => {
+    connection.query()
+}
 
 // Add Department
 const addDepartment = () => {
