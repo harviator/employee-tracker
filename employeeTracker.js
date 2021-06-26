@@ -10,7 +10,7 @@ const connection = mysql.createConnection({
 
     user: 'root',
 
-    password: '',
+    password: 'waverider7',
     database: 'employee_trackerDB',
 });
 
@@ -109,41 +109,71 @@ const viewAllEmployees = () => {
 
 // Add Employee
 const addEmployee = () => {
-    inquirer.prompt([
-        {
-            type: "input",
-            message: "What is the employee's first name?",
-            name: "firstName",
-        },
-        {
-            type: "input",
-            message: "What is the employee's last name?",
-            name: "lastName",
-        }, {
-            type: "number",
-            message: "What is the employee's role id?",
-            name: "roleId",
-        }, {
-            type: "number",
-            message: "What is the employee's manager id?",
-            name: "managerId",
-        },
-    ])
-        .then((response) => {
-            connection.query(`INSERT INTO employee SET ?`,
-                {
-                    first_name: response.firstName,
-                    last_name: response.lastName,
-                    role_id: response.roleId,
-                    manager_id: response.managerId,
-                },
+    let employees;
+    let roles;
 
-                (err, res) => {
-                    if (err) throw err;
-                    console.log("The employee has been added.");
-                    init();
+    connection.query('SELECT * FROM employee').then(result => {
+
+        employees = result;
+
+        connection.query('SELECT * FROM role').then(result => {
+
+            roles = result
+
+            const managerChoices = employees.map(({ first_name, last_name, id }) => {
+                return ({
+                    name: `${first_name} ${last_name}`,
+                    value: id,
                 })
+            })
+
+            const rolesChoices = roles.map(({ title, id }) => {
+                return ({
+                    name: title,
+                    value: id,
+                })
+            })
+
+            inquirer.prompt([
+                {
+                    type: "input",
+                    message: "What is the employee's first name?",
+                    name: "firstName",
+                },
+                {
+                    type: "input",
+                    message: "What is the employee's last name?",
+                    name: "lastName",
+                },
+                {
+                    type: "list",
+                    message: "What is the employee's role?",
+                    choices: rolesChoices,
+                    name: "roleId",
+                },
+                {
+                    type: "list",
+                    message: "Who is the employee's manager?",
+                    choices: managerChoices,
+                    name: "managerId",
+                },
+            ]).then((response) => {
+                connection.query(`INSERT INTO employee SET ?`,
+                    {
+                        first_name: response.firstName,
+                        last_name: response.lastName,
+                        role_id: response.roleId,
+                        manager_id: response.managerId,
+                    },
+
+                    (err, res) => {
+                        if (err) throw err;
+                        console.log("The employee has been added.");
+                        init();
+                    })
+            })
         })
+    })
 };
 
 // Bonus Remove Employee
@@ -153,7 +183,6 @@ const addEmployee = () => {
 
 // Update Employee Role
 const updateEmployeeRole = () => {
-    //make the query to get all employees
     let employees;
     let roles;
 
@@ -185,15 +214,14 @@ const updateEmployeeRole = () => {
                     message: "Please select an employee?",
                     choices: employeeChoices,
                     name: "employeeId",
-                }
-                , {
+                },
+                {
                     type: "list",
-                    message: "What is the employee's role id?",
+                    message: "What is the employee's role?",
                     choices: rolesChoices,
                     name: "roleId",
                 },
             ]).then((response) => {
-                //console.log(response)
                 connection.query(`UPDATE employee SET role_id = ? WHERE id = ?;`,
                     [
                         response.roleId,
@@ -211,28 +239,6 @@ const updateEmployeeRole = () => {
     })
 };
 
-
-
-//map the results into an array of objects to pass to he inquirer
-
-
-
-
-//     .then ((response) => {
-//         connection.query(`INSERT INTO employee SET ?`,
-//         {
-//             first_name: response.firstName,
-//             last_name: response.lastName,
-//             role_id: response.roleId,
-//             manager_id: response.managerId,
-//         },
-
-//         (err, res) => {
-//             if (err) throw err;
-//             console.log("The employee has been added.");
-//             init();
-//         })
-//     })
 
 
 // Add Department
