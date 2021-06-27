@@ -1,6 +1,8 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const util = require('util')
+const asciify = require('asciify-image');
+const { start } = require('repl');
 
 //connection to MySQL Database
 const connection = mysql.createConnection({
@@ -22,7 +24,6 @@ connection.query = util.promisify(connection.query)
 
 
 // Initialize the application
-//Options for add, view, update, and delete
 const init = () => {
     inquirer.prompt([
         {
@@ -365,5 +366,25 @@ const removeDepartment = () => {
     })
 };
 
-// Funtion to intitalize the application
-init();
+// Start
+const startup = () => {
+    let options = {
+        fit: 'box',
+        width: 150,
+        height: 75
+    }
+
+    asciify('./Assets/Wayne-enterprises.png', options)
+        .then(function (asciified) {
+        
+            console.log(asciified);
+
+            init();
+        }).catch(function (err) {
+            console.error(err);
+        });
+
+    
+};
+
+startup();
