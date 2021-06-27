@@ -83,7 +83,7 @@ const init = () => {
                     addDepartment();
                     break;
                 case "Remove Department":
-                    //function
+                    removeDepartment();
                     break;
                 case "Exit":
                     connection.end();
@@ -356,12 +356,14 @@ const removeDepartment = () => {
                     response.departmentId,
                 ],
                 (err, res) => {
-                    if (err) throw
-                }
+                    if (err) throw err;
+                    console.log("The department has been removed.");
+                    init();
+                })
 
         })
     })
-}
+};
 
 // Funtion to intitalize the application
 init();
