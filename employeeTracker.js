@@ -77,7 +77,7 @@ const init = () => {
                     //function
                     break;
                 case "View All Departments":
-                    //function
+                    viewAllDepartments();
                     break;
                 case "Add Department":
                     addDepartment();
@@ -261,7 +261,6 @@ const addRole = () => {
                 value: id,
             })
         })
-        console.log(departmentChoices);
 
         inquirer.prompt([
             {
@@ -296,6 +295,17 @@ const addRole = () => {
     })
 };
 
+// Bonus Remove Role
+
+// View All Departments
+const viewAllDepartments = () => {
+    connection.query(`SELECT department.id AS "ID", department.name AS "Department Name" FROM employee_trackerDB.department`, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        init();
+    })
+};
+
 // Add Department
 const addDepartment = () => {
     inquirer.prompt([
@@ -319,36 +329,39 @@ const addDepartment = () => {
         })
 };
 
-//View
-//Department, role, or employee (if time view employees by manager and department by combined salary)
+// Remove Department
+const removeDepartment = () => {
+    let departments;
 
-//Update
-//Employee role (if time employee managers)
+    connection.query('SELECT * FROM department').then(result => {
+        departments = result;
 
-//Delete (if time)
-//Department, role, or employee
+        const departmentChoices = departments.map(({ name, id }) => {
+            return ({
+                name: `${name}`,
+                value: id,
+            })
+        })
+
+        inquirer.prompt([
+            {
+                type: "list",
+                message: "What department would you like to remove?",
+                choices: departmentChoices,
+                name: "departmentId",
+            }
+        ]).then((response) => {
+            connection.query(`DELETE FROM employee_trackerDB.department WHERE department.id = ?;`,
+                [
+                    response.departmentId,
+                ],
+                (err, res) => {
+                    if (err) throw
+                }
+
+        })
+    })
+}
 
 // Funtion to intitalize the application
 init();
-
-/*
-
-NOTES:
-
-
-TEST FUNCTIONS:
-    -To call all employees to map over them
-    const getEmployee=()=>{
-        connection.query('SELECT * FROM employee').then(res=>{
-            console.log(res)
-            return res
-        })
-    }
-
-    -To call all roles to map over them
-    const getRoles= ()=>{
-        connection.query('SELECT * FROM role').then(res=>res)
-
-    }
-
-*/
