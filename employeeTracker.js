@@ -71,7 +71,7 @@ const init = () => {
                     viewAllRoles();
                     break;
                 case "Add Role":
-                    //function
+                    addRole();
                     break;
                 case "Remove Role": //Bonus
                     //function
@@ -244,6 +244,55 @@ const viewAllRoles = () => {
         if (err) throw err;
         console.table(res);
         init();
+    })
+};
+
+// Add Role
+const addRole = () => {
+    let departments;
+
+    connection.query('SELECT * FROM department').then(result => {
+
+        departments = result;
+
+        const departmentChoices = departments.map(({ name, id }) => {
+            return ({
+                name: `${name}`,
+                value: id,
+            })
+        })
+        console.log(departmentChoices);
+
+        inquirer.prompt([
+            {
+                type: "input",
+                message: "What is the role's title?",
+                name: "title",
+            },
+            {
+                type: "number",
+                message: "Please enter a salary for this role",
+                name: "salary",
+            },
+            {
+                type: "list",
+                message: "Please select which department this role is being added to",
+                choices: departmentChoices,
+                name: "departmentId",
+            }
+        ]).then((response) => {
+            connection.query(`INSERT INTO role SET ?`,
+                {
+                    title: response.title,
+                    salary: response.salary,
+                    department_id: response.departmentId,
+                },
+                (err, res) => {
+                    if (err) throw err;
+                    console.log("The role has been added.");
+                    init();
+                })
+        })
     })
 };
 
