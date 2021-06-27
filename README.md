@@ -59,4 +59,4 @@ Build a command-line application that at a minimum allows the user to:
 
 ## Walkthrough Video
 
-https://drive.google.com/file/d/1V4xSrw06gZcxhvyEu5vo6FTRyG1j8YKe/view
+https://drive.google.com/file/d/106u3JmEmFRGk5bUo7bl67cJJToKBifSx/view
